@@ -1,0 +1,8 @@
+src/nututils/*
+!src/nututils/*.*
+*.DS_Store
+*.o
+*.dSYM
+*.so
+*.a
+*.dll

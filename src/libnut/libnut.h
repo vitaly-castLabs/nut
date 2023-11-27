@@ -15,6 +15,8 @@
 /// \addtogroup common
 /// @{
 #define NUT_VERSION 2 ///< Version of NUT specification this library implements.
+#define NUT_VERSION_MIN 2
+#define NUT_VERSION_MAX 2
 
 /// Stream class values, only one can be set. Higher values are not legal.
 enum nut_stream_class_tt {
