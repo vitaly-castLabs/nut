@@ -254,7 +254,7 @@ static int get_main_header(nut_context_tt * nut) {
 	CHECK(get_header(nut->i, tmp));
 
 	GET_V(tmp, i);
-	ERROR(i >= NUT_VERSION_MIN && i <= NUT_VERSION_MAX, NUT_ERR_BAD_VERSION);
+	ERROR(i < NUT_VERSION_MIN || i > NUT_VERSION_MAX, NUT_ERR_BAD_VERSION);
 	GET_V(tmp, nut->stream_count);
 	GET_V(tmp, nut->max_distance);
 	if (nut->max_distance > 65536) nut->max_distance = 65536;
