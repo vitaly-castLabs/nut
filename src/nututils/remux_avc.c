@@ -56,6 +56,15 @@ int main(int argc, char * argv []) {
         return -1;
     }
 
+    printf("codec-specific %d bytes\n", s->codec_specific_len);
+    for (int i = 0; i < s->codec_specific_len; ++i) {
+        printf("%02x ", s->codec_specific[i]);
+        if (i % 16 == 15) {
+            printf("\n");
+        }
+    }
+    printf("\n");
+
     while (1) {
         nut_packet_tt pd;
         if ((ret = nut_read_next_packet(demuxer, &pd))) {
@@ -75,8 +84,16 @@ int main(int argc, char * argv []) {
 
         printf("frame:\n");
         for (int i = 0; i < len; ++i) {
+            int col = i & 15;
+            if (col == 0) {
+                int row = i / 16;
+                if (row > 3 && (i + 16) < len) {
+                    printf("...\n");
+                    break;
+                }
+            }
             printf("%02x ", frameBuf[i]);
-            if (i % 16 == 15) {
+            if (col == 15) {
                 printf("\n");
             }
         }
