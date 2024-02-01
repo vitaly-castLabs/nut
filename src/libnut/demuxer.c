@@ -7,6 +7,10 @@
 #include "libnut.h"
 #include "priv.h"
 
+#ifdef _MSC_VER
+#include <malloc.h>
+#endif
+
 static size_t stream_read(void * priv, size_t len, uint8_t * buf) {
 	return fread(buf, 1, len, priv);
 }
@@ -1159,7 +1163,11 @@ static int binary_search_syncpoint(nut_context_tt * nut, double time_pos, off_t 
 	int i, err = 0;
 	syncpoint_tt s;
 	off_t fake_hi, * guess = &nut->binary_guess;
+#ifdef _MSC_VER
+    uint64_t* timebases = _alloca(nut->timebase_count * sizeof(uint64_t));
+#else
 	uint64_t timebases[nut->timebase_count];
+#endif
 	syncpoint_list_tt * sl = &nut->syncpoints;
 	int a = 0;
 	for (i = 0; i < nut->timebase_count; i++) timebases[i] = (uint64_t)(time_pos / nut->tb[i].num * nut->tb[i].den);
