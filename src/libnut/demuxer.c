@@ -571,8 +571,13 @@ static int get_syncpoint(nut_context_tt * nut) {
 	s.pts_valid = !after_seek;
 	if (nut->dopts.cache_syncpoints) { // either we're using syncpoint cache, or we're seeking and we need the cache
 		int i;
+#ifdef _MSC_VER
+        uint64_t* pts = _alloca(nut->stream_count * sizeof(uint64_t));
+        uint64_t* eor = _alloca(nut->stream_count * sizeof(uint64_t));
+#else
 		uint64_t pts[nut->stream_count];
 		uint64_t eor[nut->stream_count];
+#endif
 		for (i = 0; i < nut->stream_count; i++) {
 			pts[i] = nut->sc[i].last_key;
 			eor[i] = nut->sc[i].eor;
