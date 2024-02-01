@@ -1458,7 +1458,11 @@ int nut_seek(nut_context_tt * nut, double time_pos, int flags, const int * activ
 	if (nut->syncpoints.s[nut->syncpoints.len-1].seen_next) {
 		syncpoint_list_tt * sl = &nut->syncpoints;
 		int i;
+#ifdef _MSC_VER
+        int* sync = _alloca(nut->stream_count * sizeof(int));
+#else
 		int sync[nut->stream_count];
+#endif
 		int good_sync = -2;
 		int last_sync = 0;
 		int backup = -1;
