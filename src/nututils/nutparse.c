@@ -12,7 +12,12 @@
 #include <inttypes.h>
 #include <string.h>
 #include <errno.h>
+
+#ifdef _MSC_VER
+#include "getopt_win.h"
+#else
 #include <getopt.h>
+#endif
 
 #define MAIN_STARTCODE		UINT64_C(0x4e4d7a561f5f04ad)
 #define STREAM_STARTCODE	UINT64_C(0x4e5311405bf2f9db)
