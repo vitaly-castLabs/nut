@@ -7,6 +7,10 @@
 #include "libnut.h"
 #include "priv.h"
 
+#ifdef _MSC_VER
+#include <malloc.h>
+#endif
+
 typedef nut_frame_table_input_tt fti_tt; // just a shortcut
 
 static int count_streams(const nut_stream_header_tt * s) {
@@ -18,13 +22,18 @@ static int count_streams(const nut_stream_header_tt * s) {
 void nut_framecode_generate(const nut_stream_header_tt s[], nut_frame_table_input_tt fti[256]) {
 	int stream_count = count_streams(s);
 	int i, n = 0, m = 0, tot_con = 0;
-	enum {
+	typedef enum {
 		e_consume_none = 0,
 		e_consume_mpeg4,
 		e_consume_h264,
 		e_consume_video,
 		e_consume_vorbis,
-	} consume[stream_count];
+	} Consume;
+#ifdef _MSC_VER
+    Consume* consume = (Consume *)_alloca(stream_count * sizeof(Consume));
+#else
+    Consume consume[stream_count];
+#endif
 
 	for (i = 0; i < stream_count; i++) consume[i] = e_consume_none;
 
