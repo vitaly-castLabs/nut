@@ -822,7 +822,7 @@ int main(int argc, char *argv[])
 	static struct option long_options[] = {
 		{"help", 0, NULL, 'h'},
 		{"version", 0, NULL, 'V'},
-		{}
+		{0, 0, 0, 0}
 	};
 	int c;
 
