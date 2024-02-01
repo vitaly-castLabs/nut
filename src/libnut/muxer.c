@@ -7,6 +7,10 @@
 #include "libnut.h"
 #include "priv.h"
 
+#ifdef _MSC_VER
+#include <malloc.h>
+#endif
+
 static int stream_write(void * priv, size_t len, const uint8_t * buf) {
 	return fwrite(buf, 1, len, priv);
 }
@@ -276,7 +280,11 @@ static void put_syncpoint(nut_context_tt * nut) {
 	uint64_t pts = 0;
 	int timebase = 0;
 	int back_ptr = 0;
+#ifdef _MSC_VER
+    int* keys = (int *)_alloca(nut->stream_count * sizeof(int));
+#else
 	int keys[nut->stream_count];
+#endif
 	syncpoint_list_tt * s = &nut->syncpoints;
 
 	nut->last_syncpoint = bctello(nut->o);
