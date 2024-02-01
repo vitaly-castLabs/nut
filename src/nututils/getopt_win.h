@@ -3,9 +3,9 @@
  * DISCLAIMER
  * This file is part of the mingw-w64 runtime package.
  *
- * The mingw-w64 runtime package and its code is distributed in the hope that it 
- * will be useful but WITHOUT ANY WARRANTY.  ALL WARRANTIES, EXPRESSED OR 
- * IMPLIED ARE HEREBY DISCLAIMED.  This includes but is not limited to 
+ * The mingw-w64 runtime package and its code is distributed in the hope that it
+ * will be useful but WITHOUT ANY WARRANTY.  ALL WARRANTIES, EXPRESSED OR
+ * IMPLIED ARE HEREBY DISCLAIMED.  This includes but is not limited to
  * warranties of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
  /*
@@ -119,7 +119,7 @@ static int getopt_internal(int, char * const *, const char *,
 			   const struct option *, int *, int);
 static int parse_long_options(char * const *, const char *,
 			      const struct option *, int *, int);
-static int gcd(int, int);
+static int getopt_gcd(int, int);
 static void permute_args(int, int, int, char * const *);
 
 static char *place = EMSG; /* option letter processing */
@@ -158,7 +158,7 @@ warnx(const char *fmt,...)
  * Compute the greatest common divisor of a and b.
  */
 static int
-gcd(int a, int b)
+getopt_gcd(int a, int b)
 {
 	int c;
 
@@ -189,7 +189,7 @@ permute_args(int panonopt_start, int panonopt_end, int opt_end,
 	 */
 	nnonopts = panonopt_end - panonopt_start;
 	nopts = opt_end - panonopt_end;
-	ncycle = gcd(nnonopts, nopts);
+	ncycle = getopt_gcd(nnonopts, nopts);
 	cyclelen = (opt_end - panonopt_start) / ncycle;
 
 	for (i = 0; i < ncycle; i++) {
