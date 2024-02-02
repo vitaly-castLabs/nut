@@ -4,6 +4,10 @@
 #include "nutmerge.h"
 #include <string.h>
 
+#ifdef _MSC_VER
+#include <malloc.h>
+#endif
+
 FILE * stats = NULL;
 
 extern demuxer_tt avi_demuxer;
@@ -76,12 +80,18 @@ static int pick(stream_tt * streams, int stream_count) {
 
 static int convert(FILE * out, demuxer_tt * demuxer, stream_tt * streams, int stream_count) {
 	nut_context_tt * nut = NULL;
+#ifdef _MSC_VER
+	nut_stream_header_tt* nut_stream = _alloca((stream_count+1) * sizeof(nut_stream_header_tt));
+	framer_tt* framers = _alloca(stream_count * sizeof(framer_tt));
+	int* pts = _alloca(stream_count * sizeof(int));
+#else
 	nut_stream_header_tt nut_stream[stream_count+1];
-	nut_muxer_opts_tt mopts;
 	framer_tt framers[stream_count];
+	int pts[stream_count];
+#endif
+	nut_muxer_opts_tt mopts;
 	int i, err = 0;
 	packet_tt p;
-	int pts[stream_count];
 
 	memset(framers, 0, sizeof framers);
 	memset(pts, 0, sizeof pts);
