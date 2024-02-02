@@ -8,6 +8,7 @@
 #include "priv.h"
 
 #ifdef _MSC_VER
+#define ftello _ftelli64
 #include <malloc.h>
 #endif
 

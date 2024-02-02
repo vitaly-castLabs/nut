@@ -4,6 +4,10 @@
 #include <string.h>
 #include "nutmerge.h"
 
+#ifdef _MSC_VER
+#include <malloc.h>
+#endif
+
 struct framer_priv_s {
 	int blocksize[2];
 	stream_tt * stream;
@@ -190,28 +194,39 @@ static int setup_headers(framer_priv_tt * vc, nut_stream_header_tt * s) {
 		} else if (num == 1) { // floor type 1
 			int partitions, j, max = -1, rangebits;
 			CHECK(get_bits(&bp, 5, &num)); partitions = num;
-			{ int class_list[partitions];
-			for (j = 0; j < partitions; j++) {
-				CHECK(get_bits(&bp, 4, &num));
-				class_list[j] = num;
-				max = MAX(max, (int)num);
-			}
-			{ int classes[max + 1];
-			for (j = 0; j <= max; j++) {
-				int n;
-				CHECK(get_bits(&bp, 3, &num));
-				classes[j] = num + 1;
-				CHECK(get_bits(&bp, 2, &num));
-				if (num) CHECK(get_bits(&bp, 8, NULL));
-				for (n = 0; n <= ((1 << num) - 1); n++) CHECK(get_bits(&bp, 8, NULL));
-			}
-			CHECK(get_bits(&bp, 2, NULL)); // multiplier
-			CHECK(get_bits(&bp, 4, &num)); rangebits = num;
+			{
+				#ifdef _MSC_VER
+					int* class_list = _alloca(partitions * sizeof(int));
+				#else
+					int class_list[partitions];
+				#endif
+				for (j = 0; j < partitions; j++) {
+					CHECK(get_bits(&bp, 4, &num));
+					class_list[j] = num;
+					max = MAX(max, (int)num);
+				}
+				{
+				#ifdef _MSC_VER
+					int* classes = _alloca((max + 1) * sizeof(int));
+				#else
+					int classes[max + 1];
+				#endif
+					for (j = 0; j <= max; j++) {
+						int n;
+						CHECK(get_bits(&bp, 3, &num));
+						classes[j] = num + 1;
+						CHECK(get_bits(&bp, 2, &num));
+						if (num) CHECK(get_bits(&bp, 8, NULL));
+						for (n = 0; n <= ((1 << num) - 1); n++) CHECK(get_bits(&bp, 8, NULL));
+					}
+					CHECK(get_bits(&bp, 2, NULL)); // multiplier
+					CHECK(get_bits(&bp, 4, &num)); rangebits = num;
 
-			for (j = 0; j < partitions; j++) {
-				CHECK(get_bits(&bp, classes[class_list[j]]*rangebits, NULL));
+					for (j = 0; j < partitions; j++) {
+						CHECK(get_bits(&bp, classes[class_list[j]]*rangebits, NULL));
+					}
+				}
 			}
-			}}
 		} else { err = err_vorbis_header; goto err_out; } // unknown floor
 	}
 
@@ -226,21 +241,26 @@ static int setup_headers(framer_priv_tt * vc, nut_stream_header_tt * s) {
 		CHECK(get_bits(&bp, 24, NULL)); // residue_partition_size
 		CHECK(get_bits(&bp, 6, &num)); classifications = num + 1;
 		CHECK(get_bits(&bp, 8, NULL)); // residue_classbook
-		{int bits[classifications];
-		for (j = 0; j < classifications; j++) {
-			CHECK(get_bits(&bp, 3, &num)); bits[j] = num;
-			CHECK(get_bits(&bp, 1, &num));
-			if (num) {
-				CHECK(get_bits(&bp, 5, &num));
-				bits[j] |= num << 3;
+		{
+#ifdef _MSC_VER
+			int* bits = _alloca(classifications * sizeof(int));
+#else
+			int bits[classifications];
+#endif
+			for (j = 0; j < classifications; j++) {
+				CHECK(get_bits(&bp, 3, &num)); bits[j] = num;
+				CHECK(get_bits(&bp, 1, &num));
+				if (num) {
+					CHECK(get_bits(&bp, 5, &num));
+					bits[j] |= num << 3;
+				}
 			}
-		}
-		for (j = 0; j < classifications; j++){
-			int bit;
-			for (bit = 0; bit < 8; bit++) {
-				if (bits[j] & (1 << bit)) CHECK(get_bits(&bp, 8, NULL));
+			for (j = 0; j < classifications; j++){
+				int bit;
+				for (bit = 0; bit < 8; bit++) {
+					if (bits[j] & (1 << bit)) CHECK(get_bits(&bp, 8, NULL));
+				}
 			}
-		}
 		}
 	}
 
